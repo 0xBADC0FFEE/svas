@@ -1,73 +1,39 @@
-'use strict'
+import js from '@eslint/js';
+import { includeIgnoreFile } from '@eslint/compat';
+import svelte from 'eslint-plugin-svelte';
+import globals from 'globals';
+import { fileURLToPath } from 'node:url';
+import ts from 'typescript-eslint';
+import svelteConfig from './svelte.config.js';
 
-const importPlugin = require('eslint-plugin-import')
-const neostandard = require('neostandard')
+const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
 
-module.exports = [
-  ...neostandard({
-    ts: true,
-    ignores: neostandard.resolveIgnoresFromGitignore(),
-  }),
-  {
-    plugins: {
-      import: importPlugin
-    }
-  },
-  {
-    rules: {
-      curly: ['error', 'multi'],
-      '@stylistic/space-before-function-paren': ['error', 'never'],
-      'padding-line-between-statements': [
-        'error',
-        {
-          blankLine: 'always',
-          prev: ['block-like', 'if'],
-          next: '*'
-        },
-        {
-          blankLine: 'always',
-          prev: '*',
-          next: ['block-like', 'if']
-        },
-        {
-          blankLine: 'always',
-          prev: ['const', 'let'],
-          next: ['expression', 'for']
-        },
-        {
-          blankLine: 'always',
-          prev: 'expression',
-          next: ['const', 'let']
-        },
-        {
-          blankLine: 'always',
-          prev: ['multiline-const', 'multiline-let'],
-          next: '*'
-        },
-        {
-          blankLine: 'always',
-          prev: '*',
-          next: ['multiline-const', 'multiline-let']
-        },
-        {
-          blankLine: 'always',
-          prev: '*',
-          next: 'return'
-        }
-      ],
-      'import/order': ['error', {
-        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'type'],
-        alphabetize: {
-          order: 'asc'
-        }
-      }],
-    },
-  },
-  {
-    files: ['**/*.ts'],
-    rules: {
-      'no-void': ['error', { allowAsStatement: true }],
-      '@typescript-eslint/consistent-type-imports': 'error'
-    }
-  },
-]
+export default ts.config(
+	includeIgnoreFile(gitignorePath),
+	js.configs.recommended,
+	...ts.configs.recommended,
+	...svelte.configs.recommended,
+	{
+		languageOptions: {
+			globals: { ...globals.browser, ...globals.node }
+		},
+		rules: { // typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
+		// see: https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
+		"no-undef": 'off' }
+	},
+	{
+		files: [
+			'**/*.svelte',
+			'**/*.svelte.ts',
+			'**/*.svelte.js'
+		],
+		languageOptions: {
+			parserOptions: {
+				projectService: true,
+				extraFileExtensions: ['.svelte'],
+				parser: ts.parser,
+				svelteConfig
+			}
+		}
+	}
+);
