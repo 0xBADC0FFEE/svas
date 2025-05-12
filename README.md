@@ -1,3 +1,3 @@
 # Svelte Async Stores
 
-Tools that makes web doesn't suck.
+Tools that make web doesn't suck.
