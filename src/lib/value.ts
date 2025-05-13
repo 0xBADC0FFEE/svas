@@ -37,7 +37,12 @@ class Value<T> implements Writable<T | null> {
   }
 
   public update(updater: Updater<T | null>): void {
-    this.store.update(updater)
+    this.store.update((value) => {
+      const updated = updater(value)
+
+      if (this.map) return this.map(updated)
+      else return updated
+    })
   }
 
   public subscribe(run: Subscriber<T | null>, invalidate?: () => void): Unsubscriber {
