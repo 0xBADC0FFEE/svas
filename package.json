@@ -1,6 +1,6 @@
 {
 	"name": "svas",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
@@ -29,7 +29,7 @@
 		}
 	},
 	"peerDependencies": {
-		"@lucide/svelte": "^0.510.0",
+		"@lucide/svelte": "*",
 		"svelte": "^5.0.0"
 	},
 	"devDependencies": {
