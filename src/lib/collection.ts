@@ -155,6 +155,7 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
 
     this.fetch().then((items) => {
       if (!(items instanceof Error)) this.replace(items)
+      else this.store.set(items)
     })
 
     this.timestamp = Date.now()
