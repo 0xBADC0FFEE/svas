@@ -1,29 +1,16 @@
-import { readable, type Readable } from 'svelte/store'
+import { derived, type Readable } from 'svelte/store'
 import type { Maybe } from './Maybe'
 
 export function combined<T extends Readable<unknown>[]>(...stores: T): Readable<Maybe<Values<T>>> {
-  return readable<Maybe<Values<T>>>(null, (set) => {
-    const values = new Array(stores.length).fill(null)
+  return derived(stores, (values, set) => {
+    const error = values.find((value) => value instanceof Error)
 
-    const unsubs = stores.map((store, index) =>
-      store.subscribe((value) => {
-        if (value instanceof Error) {
-          values[index] = null
-          set(value)
-        } else if (value === null) {
-          values[index] = value
-          set(value)
-        } else {
-          values[index] = value
-
-          if (values.every((value) => value !== null)) set(values as Values<T>)
-        }
-      })
-    )
-
-    return () => {
-      unsubs.forEach((unsub) => unsub())
-    }
+    if (error) 
+      set(error)
+    else if (values.some((value) => value === null))
+      set(null)
+    else
+      set(values as Values<T>)
   })
 }
 
