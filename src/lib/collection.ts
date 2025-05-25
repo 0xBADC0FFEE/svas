@@ -99,7 +99,7 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
       return items
     })
 
-    if (options?.bind === false) return this.values?.get(value.id) as Readable<T | E>
+    if (options?.sync === false) return this.values?.get(value.id) as Readable<T | E>
     else return this.values?.set(value.id, value, options) as Readable<T | E>
   }
 
@@ -114,10 +114,10 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
 
     if (value === null || value instanceof Error) return
 
-    this.set(value, { bind: false })
+    this.set(value, { sync: false })
   }
 
-  public update(id: string, update: (item: T) => T | void): void {
+  public update(id: string, update: (item: T) => T | void, options?: SetOptions): void {
     if (this.values === undefined) throw new Error('Collection: values is not defined')
 
     const asis = this.values.extract(id)
@@ -126,7 +126,7 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
 
     const tobe = update(asis) ?? asis
 
-    this.set(tobe)
+    this.set(tobe, options)
   }
 
   public sync(): this {
@@ -238,8 +238,8 @@ export interface SetOptions {
   /** Whether value is transient. Defaults to false. */
   stash?: boolean
 
-  /** Whether to sync the collection after setting the item. Defaults to true. */
-  bind?: boolean
+  /** Whether to sync the collection values after setting the item. Defaults to true. */
+  sync?: boolean
 }
 
 export function collection<T extends Identifiable, E extends Error = Error>(
