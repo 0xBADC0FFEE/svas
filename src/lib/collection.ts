@@ -208,10 +208,10 @@ interface Options<T = unknown, E extends Error = Error> {
   /** Sorting function applied on updates. */
   sort?: (a: T, b: T) => number
 
-  /** Time in milliseconds before revalidating the collection. */
+  /** Time in milliseconds before revalidating the collection. Defaults to 300 seconds. */
   revalidate?: number
 
-  /** Whether to keep the collection while revalidating. */
+  /** Whether to keep the collection while revalidating. Defaults to false. */
   stale?: boolean
 
   /** Values store. */
