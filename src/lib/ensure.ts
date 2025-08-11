@@ -1,4 +1,4 @@
-import type { Maybe } from '$lib/reflection/Maybe'
+import type { Maybe } from './Maybe'
 import { get, type Readable } from 'svelte/store'
 
 export function ensure<T>(store: Readable<Maybe<T>>): T {
