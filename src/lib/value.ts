@@ -14,14 +14,16 @@ type Input<T, M, Default> = M extends (arg: infer P) => T ? P : Default
 class Value<T> implements Writable<T | null> {
   private readonly store: Writable<T | null>
   private readonly map?: Options<T>['map']
+  private readonly default: T | null
 
   public constructor(options: Options<T>) {
     const persist = browser && options.persist !== undefined
-    const def = options.default ?? null
+
+    this.default = options.default ?? null
 
     this.store = persist
-      ? persistent<T>(options.persist as string, def, options.session)
-      : writable<T | null>(def)
+      ? persistent<T>(options.persist as string, this.default, options.session)
+      : writable<T | null>(this.default)
 
     if (browser) {
       if (options.bind) this.bind(options.bind)
@@ -55,7 +57,7 @@ class Value<T> implements Writable<T | null> {
 
   private bind(store: Readable<unknown | null>): void {
     store.subscribe((value) => {
-      if (value === null) this.store.set(null)
+      if (value === null) this.store.set(this.default)
     })
   }
 }
