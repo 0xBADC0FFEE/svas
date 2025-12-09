@@ -38,19 +38,12 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
   }
 
   public add(item: T): void {
-    const value = item
-
-    this.values?.set(value.id, value)
+    this.values?.set(item.id, item)
 
     this.store.update((items) => {
-      if (items === null || items instanceof Error) return [value]
-      else {
-        if (items.find((item) => item.id === value.id) !== undefined) return items
-
-        items.unshift(value)
-
-        return items
-      }
+      if (items === null || items instanceof Error) return [item]
+      else if (items.find((i) => i.id === item.id) !== undefined) return items
+      else return [item, ...items]
     })
   }
 
@@ -71,42 +64,23 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
 
     this.store.update((items) => {
       if (items === null || items instanceof Error) return items
-
-      return items.filter((item) => item.id !== id)
+      else return items.filter((item) => item.id !== id)
     })
   }
 
-  public set(item: T, options?: SetOptions): Readable<T | E> {
-    const value = item
-
+  public set(item: T, options?: SetOptions): void {
     this.store.update((items) => {
       if (items === null || items instanceof Error) return [item]
 
-      const index = items.findIndex((i) => i.id === value.id)
+      const index = items.findIndex((i) => i.id === item.id)
 
-      if (index === -1) return options?.add === true ? [value, ...items] : items
+      if (index === -1)
+        return options?.add === true ? [item, ...items] : items
 
-      items[index] = value
+      items[index] = item
 
       return items
     })
-
-    if (options?.sync === false) return this.values?.get(value.id) as Readable<T | E>
-    else return this.values?.set(value.id, value, options) as Readable<T | E>
-  }
-
-  public preset(item: T): void {
-    this.set(item, { stash: true })
-  }
-
-  public reset(id: string): void {
-    if (this.values === undefined) throw new Error('Collection: values is not defined')
-
-    const value = this.values?.reset(id)
-
-    if (value === null || value instanceof Error) return
-
-    this.set(value, { sync: false })
   }
 
   public update(id: string, update: (item: T) => T | void, options?: SetOptions): void {
@@ -139,7 +113,9 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
     this.store.set(values)
     this.timestamp = Date.now()
 
-    if (this.values !== undefined) for (const value of values) this.values.set(value.id, value)
+    if (this.values !== undefined)
+      for (const value of values)
+        this.values.set(value.id, value)
   }
 
   private refresh(): void {
@@ -213,12 +189,6 @@ export interface Identifiable {
 export interface SetOptions {
   /** Whether to add the item to the collection if it does not exist. Defaults to false. */
   add?: boolean
-
-  /** Whether value is transient. Defaults to false. */
-  stash?: boolean
-
-  /** Whether to sync the collection values after setting the item. Defaults to true. */
-  sync?: boolean
 }
 
 export function collection<T extends Identifiable, E extends Error = Error>(
