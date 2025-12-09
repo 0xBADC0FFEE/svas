@@ -5,14 +5,13 @@ import {
   type Subscriber,
   type Unsubscriber
 } from 'svelte/store'
-import { browser } from '$app/environment'
 import type { Maybe } from './Maybe'
 import type { GetOptions, Values } from './values'
 
 export class Collection<T extends Identifiable, E extends Error = Error> implements Readable<Maybe<T[], E>> {
   private readonly store: Writable<Maybe<T[], E>>
   private readonly values?: Values<T, E>
-  private readonly fetch: Options<T, E>['get']
+  private readonly request: Options<T, E>['get']
   private readonly revalidate: number
   private readonly stale: boolean
   private timestamp: number = 0
@@ -20,15 +19,15 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
   public constructor(options: Options<T, E>) {
     this.store = writable(null)
     this.values = options.values
-    this.fetch = options.get
+    this.request = options.get
     this.revalidate = options.revalidate ?? DEFAULTS.revalidate
     this.stale = options.stale ?? DEFAULTS.stale
 
-    if (browser) {
-      if (options.persist !== undefined) this.persist(options.persist)
+    if (options.persist !== undefined)
+      this.persist(options.persist)
 
-      if (options.bind !== undefined) this.bind(options.bind)
-    }
+    if (options.bind !== undefined)
+      this.bind(options.bind)
   }
 
   public subscribe(run: Subscriber<Maybe<T[], E>>, invalidate?: () => void): Unsubscriber {
@@ -84,11 +83,13 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
   }
 
   public update(id: string, update: (item: T) => T | void, options?: SetOptions): void {
-    if (this.values === undefined) throw new Error('Collection: values is not defined')
+    if (this.values === undefined)
+      throw new Error('Collection: values is not defined')
 
     const asis = this.values.extract(id)
 
-    if (asis === null) return
+    if (asis === null)
+      return
 
     const tobe = update(asis) ?? asis
 
@@ -99,10 +100,17 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
     const stale = this.timestamp === 0 || this.timestamp + this.revalidate < Date.now()
 
     if (stale) {
-      if (!this.stale) this.clear()
+      if (!this.stale)
+        this.clear()
 
-      this.refresh()
+      void this.refresh()
     }
+
+    return this
+  }
+
+  public async fetch() {
+    await this.refresh()
 
     return this
   }
@@ -118,18 +126,21 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
         this.values.set(value.id, value)
   }
 
-  private refresh(): void {
-    if (this.fetch === undefined) return
+  private async refresh() {
+    if (this.request === undefined) return
 
-    this.fetch().then((items) => {
-      if (!(items instanceof Error)) this.replace(items)
-      else this.store.set(items)
-    })
+    const items = await this.request()
+
+    if (!(items instanceof Error)) this.replace(items)
+    else this.store.set(items)
 
     this.timestamp = Date.now()
   }
 
   private persist(key: string) {
+    if (typeof window === 'undefined')
+      return
+
     const stored = localStorage.getItem(key)
 
     if (stored !== null) {

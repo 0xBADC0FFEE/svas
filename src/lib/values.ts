@@ -1,4 +1,3 @@
-import { browser } from '$app/environment'
 import { get, type Readable, writable, type Writable } from 'svelte/store'
 import type { Maybe } from './Maybe'
 
@@ -23,12 +22,10 @@ class Values<T, E extends Error = Error> {
     this.persist = options.persist
 
     this.persistent = this.persist !== undefined
+    this.load()
 
-    if (browser) {
-      this.load()
-
-      if (options.bind !== undefined) this.bind(options.bind)
-    }
+    if (options.bind !== undefined)
+      this.bind(options.bind)
   }
 
   public set(key: string, item: T | E, options?: SetOptions): Readable<T | E> {
@@ -126,7 +123,8 @@ class Values<T, E extends Error = Error> {
   }
 
   private dump(delay = true) {
-    if (this.persist === undefined || !browser) return
+    if (this.persist === undefined || typeof window === 'undefined')
+      return
 
     if (delay) {
       this.dumping ??= setTimeout(() => this.dump(false), DUMP_GAP)
@@ -147,7 +145,8 @@ class Values<T, E extends Error = Error> {
   }
 
   private load() {
-    if (this.persist === undefined) return
+    if (this.persist === undefined || typeof window === 'undefined')
+      return
 
     const data = localStorage.getItem(this.persist)
 

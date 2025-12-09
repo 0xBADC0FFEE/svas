@@ -7,24 +7,20 @@ import {
   type Updater,
   type Writable
 } from 'svelte/store'
-import { browser } from '$app/environment'
 
 class Value<T> implements Writable<T | null> {
   private readonly store: Writable<T | null>
   private readonly default: T | null
 
   public constructor(options: Options<T>) {
-    const persist = browser && options.persist !== undefined
-
     this.default = options.default ?? null
 
-    this.store = persist
-      ? persistent<T>(options.persist as string, this.default, options.session)
-      : writable<T | null>(this.default)
+    this.store = options.persist === undefined || typeof window === 'undefined'
+      ? writable<T | null>(this.default)
+      : persistent<T>(options.persist as string, this.default, options.session)
 
-    if (browser) {
-      if (options.bind) this.bind(options.bind)
-    }
+    if (options.bind)
+      this.bind(options.bind)
   }
 
   public set(value: T | null): void {
@@ -50,7 +46,8 @@ class Value<T> implements Writable<T | null> {
 
   private bind(store: Readable<unknown | null>): void {
     store.subscribe((value) => {
-      if (value === null) this.store.set(this.default)
+      if (value === null)
+        this.store.set(this.default)
     })
   }
 }
