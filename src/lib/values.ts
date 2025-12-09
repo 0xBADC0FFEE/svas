@@ -7,7 +7,6 @@ class Values<T, E extends Error = Error> {
 
   private readonly values: Record<string, Value<T, E>> = {}
   private readonly fetch: Options<T, E>['get']
-  private readonly map: Options<T, E>['map']
   private readonly revalidate: number
   private readonly permanent: boolean
   private readonly stale: boolean
@@ -18,7 +17,6 @@ class Values<T, E extends Error = Error> {
 
   public constructor(options: Options<T, E>) {
     this.fetch = options.get
-    this.map = options.map
     this.revalidate = options.revalidate ?? DEFAULTS.revalidate
     this.permanent = options.permanent ?? DEFAULTS.permanent
     this.stale = options.stale ?? DEFAULTS.stale
@@ -33,8 +31,8 @@ class Values<T, E extends Error = Error> {
     }
   }
 
-  public set<I = T>(key: string, item: Input<T, typeof this.map, I> | E, options?: SetOptions): Readable<T | E> {
-    const value = this.map?.(item) ?? item
+  public set(key: string, item: T | E, options?: SetOptions): Readable<T | E> {
+    const value = item
     const entry = this.values[key] ?? (this.values[key] = this.create(value))
 
     if (options?.stash === true) this.stash(key)
@@ -167,20 +165,11 @@ class Values<T, E extends Error = Error> {
   }
 }
 
-type Input<T, M, Default> = M extends (arg: infer P) => T ? P : Default
-
 interface Options<T = unknown, E extends Error = Error> {
   /**
    * Fetches the value
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  get?: (key: string) => Promise<Exclude<any, Error> | E>
-
-  /**
-   * Maps the fetched value
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  map?: (item: any) => T
+  get?: (key: string) => Promise<T | E>
 
   /**
    * Time in milliseconds before revalidating the value.

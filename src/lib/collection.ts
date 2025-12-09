@@ -13,8 +13,6 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
   private readonly store: Writable<Maybe<T[], E>>
   private readonly values?: Values<T, E>
   private readonly fetch: Options<T, E>['get']
-  private readonly map: Options<T, E>['map']
-  private readonly sort: Options<T, E>['sort']
   private readonly revalidate: number
   private readonly stale: boolean
   private timestamp: number = 0
@@ -23,8 +21,6 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
     this.store = writable(null)
     this.values = options.values
     this.fetch = options.get
-    this.map = options.map
-    this.sort = options.sort
     this.revalidate = options.revalidate ?? DEFAULTS.revalidate
     this.stale = options.stale ?? DEFAULTS.stale
 
@@ -41,8 +37,8 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
     return this.store.subscribe(run, invalidate)
   }
 
-  public add<I = T>(item: Input<T, typeof this.map, I>): void {
-    const value = this.map?.(item) ?? item
+  public add(item: T): void {
+    const value = item
 
     this.values?.set(value.id, value)
 
@@ -52,8 +48,6 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
         if (items.find((item) => item.id === value.id) !== undefined) return items
 
         items.unshift(value)
-
-        if (this.sort !== undefined) items.sort(this.sort)
 
         return items
       }
@@ -82,8 +76,8 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
     })
   }
 
-  public set<I = T>(item: Input<T, typeof this.map, I>, options?: SetOptions): Readable<T | E> {
-    const value = this.map?.(item) ?? item
+  public set(item: T, options?: SetOptions): Readable<T | E> {
+    const value = item
 
     this.store.update((items) => {
       if (items === null || items instanceof Error) return [item]
@@ -94,8 +88,6 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
 
       items[index] = value
 
-      if (this.sort !== undefined && options?.sort !== false) items.sort(this.sort)
-
       return items
     })
 
@@ -103,7 +95,7 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
     else return this.values?.set(value.id, value, options) as Readable<T | E>
   }
 
-  public preset<I = T>(item: Input<T, typeof this.map, I>): void {
+  public preset(item: T): void {
     this.set(item, { stash: true })
   }
 
@@ -141,8 +133,8 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
     return this
   }
 
-  public replace<I = T>(items: Array<Input<T, typeof this.map, I>>): void {
-    const values = this.map === undefined ? items : items.map((item) => this.map!(item))
+  public replace(items: T[]): void {
+    const values = items
 
     this.store.set(values)
     this.timestamp = Date.now()
@@ -194,19 +186,9 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
   }
 }
 
-type Input<T, M, Default> = M extends (arg: infer P) => T ? P : Default
-
 interface Options<T = unknown, E extends Error = Error> {
   /** Fetches the collection. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  get?: () => Promise<any[] | E>
-
-  /** Maps the fetched item to the type of the collection. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  map?: (item: any) => T
-
-  /** Sorting function applied on updates. */
-  sort?: (a: T, b: T) => number
+  get?: () => Promise<T[] | E>
 
   /** Time in milliseconds before revalidating the collection. Defaults to 300 seconds. */
   revalidate?: number
@@ -229,9 +211,6 @@ export interface Identifiable {
 }
 
 export interface SetOptions {
-  /** Whether to sort the collection after setting the item. Defaults to true. */
-  sort?: boolean
-
   /** Whether to add the item to the collection if it does not exist. Defaults to false. */
   add?: boolean
 

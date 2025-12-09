@@ -9,11 +9,8 @@ import {
 } from 'svelte/store'
 import { browser } from '$app/environment'
 
-type Input<T, M, Default> = M extends (arg: infer P) => T ? P : Default
-
 class Value<T> implements Writable<T | null> {
   private readonly store: Writable<T | null>
-  private readonly map?: Options<T>['map']
   private readonly default: T | null
 
   public constructor(options: Options<T>) {
@@ -27,13 +24,10 @@ class Value<T> implements Writable<T | null> {
 
     if (browser) {
       if (options.bind) this.bind(options.bind)
-
-      if (options.map) this.map = options.map
     }
   }
 
-  public set<I = T>(value: Input<T, typeof this.map, I> | null): void {
-    if (value !== null && this.map) value = this.map(value)
+  public set(value: T | null): void {
 
     this.store.set(value)
   }
@@ -42,8 +36,7 @@ class Value<T> implements Writable<T | null> {
     this.store.update((value) => {
       const updated = updater(value)
 
-      if (this.map) return this.map(updated)
-      else return updated
+      return updated
     })
   }
 
@@ -100,12 +93,6 @@ interface Options<T> {
    * Nullify values when the bound store is null.
    */
   bind?: Readable<unknown | null>
-
-  /**
-   * Maps values on set.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  map?: (item: any) => T
 
   /**
    * Default value.
