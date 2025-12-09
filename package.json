@@ -1,6 +1,7 @@
 {
 	"name": "svas",
 	"version": "0.1.9",
+	"repository": "https://github.com/temich/svas",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
