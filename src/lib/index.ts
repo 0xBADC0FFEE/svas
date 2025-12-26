@@ -1,6 +1,7 @@
 export { collection, type Collection } from './collection'
 export { values, type Values } from './values'
 export { value } from './value'
+export { awaited } from './awaited'
 export { having } from './having'
 export { ensure } from './ensure'
 export { sync } from './sync'

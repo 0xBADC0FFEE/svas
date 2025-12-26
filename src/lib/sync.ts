@@ -1,8 +1,8 @@
 import type { Collection, Identifiable, SetOptions } from './collection'
 
 export function sync<T extends Comparable>(
-  tobe: T,
   collection: Collection<T>,
+  tobe: T,
   options?: Options
 ) {
   if (tobe._deleted !== null && tobe._deleted !== undefined) {
