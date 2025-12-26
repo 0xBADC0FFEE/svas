@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/temich/svas/compare/v1.0.0...v1.1.0) (2025-12-26)
+
+
+### Features
+
+* swap sync arguments ([722aa85](https://github.com/temich/svas/commit/722aa855e3adc729a3882f58516a6e989d0e6b0f))
+
 # 1.0.0 (2025-12-09)
 
 
