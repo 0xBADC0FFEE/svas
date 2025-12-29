@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/temich/svas/compare/v1.1.0...v1.2.0) (2025-12-29)
+
+
+### Features
+
+* remove wrapping `<div>` from `<Async />` ([cdeffa7](https://github.com/temich/svas/commit/cdeffa7c32d2083f25351269bc82e9a604322cbc))
+
 # [1.1.0](https://github.com/temich/svas/compare/v1.0.0...v1.1.0) (2025-12-26)
 
 
