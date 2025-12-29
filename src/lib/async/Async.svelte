@@ -12,24 +12,18 @@
   }: Props<T> = $props();
 </script>
 
-<div class={classes}>
-  {#if $store === null}
-    {#if waiting}
-      {@render waiting()}
-    {:else if !silent}
-      <div class="w-full h-full flex justify-center items-center">
-        <LoaderCircle class="animate-spin text-gray-400" />
-      </div>
-    {/if}
-  {:else if $store instanceof Error}
-    {#if error}
-      {@render error($store)}
-    {:else if !silent}
-      <div class="w-full h-full flex justify-center items-center">
-        Something went terribly wrong
-      </div>
-    {/if}
-  {:else}
-    {@render awaited($store)}
+{#if $store === null}
+  {#if waiting}
+    {@render waiting()}
+  {:else if !silent}
+    <LoaderCircle class="animate-spin m-auto text-muted-foreground" />
   {/if}
-</div>
+{:else if $store instanceof Error}
+  {#if error}
+    {@render error($store)}
+  {:else if !silent}
+    <span class="text-destructive">Something went terribly wrong</span>
+  {/if}
+{:else}
+  {@render awaited($store)}
+{/if}
