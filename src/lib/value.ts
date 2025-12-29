@@ -71,7 +71,15 @@ function persistent<T>(key: string, def: T | null, session?: boolean): Writable<
 function load<T>(key: string): T | null {
   const json = window.localStorage.getItem(key)
 
-  return json === null ? null : (JSON.parse(json) as T)
+  if (json === null) return null
+
+  try {
+    return JSON.parse(json) as T
+  } catch (error) {
+    console.error(`Invalid storage value for ${key}`, error)
+
+    return null
+  }
 }
 
 interface Options<T> {

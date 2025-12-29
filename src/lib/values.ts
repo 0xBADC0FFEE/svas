@@ -152,9 +152,19 @@ class Values<T, E extends Error = Error> {
 
     if (data === null) return
 
-    const values = JSON.parse(data) as Record<string, T>
+    try {
+      const values = JSON.parse(data) as Record<string, T>
 
-    for (const [key, value] of Object.entries(values)) this.set(key, value)
+      if (values === null || typeof values !== 'object') {
+        console.error(`Storage value for ${this.persist} is not an object:`, values)
+
+        return
+      }
+
+      for (const [key, value] of Object.entries(values)) this.set(key, value)
+    } catch (error) {
+      console.error(`Invalid storage value for ${this.persist}`, error)
+    }
   }
 
   private bind(store: Readable<unknown | null>) {

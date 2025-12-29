@@ -141,11 +141,9 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
     if (typeof window === 'undefined')
       return
 
-    const stored = localStorage.getItem(key)
+    const items = this.load(key)
 
-    if (stored !== null) {
-      const items = JSON.parse(stored) as T[]
-
+    if (items !== null) {
       this.store.set(items)
 
       if (this.values?.persistent === false)
@@ -158,6 +156,32 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
       if (items === null) localStorage.removeItem(key)
       else localStorage.setItem(key, JSON.stringify(items))
     })
+  }
+
+  private load(key: string): T[] | null {
+    if (typeof window === 'undefined')
+      return null
+
+    const stored = localStorage.getItem(key)
+
+    if (stored === null)
+      return null
+
+    try {
+      const items = JSON.parse(stored) as T[]
+
+      if (!Array.isArray(items)) {
+        console.error(`Storage value for ${key} is not an array:`, items)
+
+        return null
+      }
+
+      return items
+    } catch (error) {
+      console.error(`Invalid storage value for ${key}`, error)
+
+      return null
+    }
   }
 
   private bind(store: Readable<unknown | null>): void {
