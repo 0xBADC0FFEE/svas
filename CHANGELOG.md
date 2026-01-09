@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/temich/svas/compare/v1.2.0...v1.2.1) (2026-01-09)
+
+
+### Bug Fixes
+
+* **combined:** fix reactivity ([729da48](https://github.com/temich/svas/commit/729da48b97aaf293388bb1a06de26726cbc0d44e))
+
 # [1.2.0](https://github.com/temich/svas/compare/v1.1.0...v1.2.0) (2025-12-29)
 
 
