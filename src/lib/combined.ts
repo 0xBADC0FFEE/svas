@@ -10,7 +10,7 @@ export function combined<T extends Readable<unknown>[]>(...stores: T): Readable<
     else if (values.some((value) => value === null))
       set(null)
     else
-      set(values as Values<T>)
+      set([...values] as Values<T>)
   })
 }
 
