@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/temich/svas/compare/v1.2.1...v1.3.0) (2026-01-10)
+
+
+### Features
+
+* handle invalid storage values ([5538eb9](https://github.com/temich/svas/commit/5538eb9f6a892763fa459916178e1d4b45f0e079))
+
 ## [1.2.1](https://github.com/temich/svas/compare/v1.2.0...v1.2.1) (2026-01-09)
 
 
