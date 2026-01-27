@@ -1,6 +1,6 @@
 import type { Readable, Unsubscriber } from "svelte/store";
 
-export function waitUntil<T>(store: Readable<T>, condition: (value: T) => boolean): Promise<T> {
+export function once<T>(store: Readable<T>, condition: (value: T) => boolean): Promise<T> {
   const promise = new Promise<T>((resolve) => {
     let completed = false
     let unsubscribe: Unsubscriber | null = null
