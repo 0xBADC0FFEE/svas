@@ -1,3 +1,11 @@
+# [1.4.0](https://github.com/temich/svas/compare/v1.3.0...v1.4.0) (2026-01-30)
+
+
+### Features
+
+* add reload button on error ([23dd2cf](https://github.com/temich/svas/commit/23dd2cfb485c21b98256cc0fd3fddc94dbb2b5b4))
+* export `once` ([4ef66cf](https://github.com/temich/svas/commit/4ef66cf8686223bf67bcaa29b8a486227b8faee2))
+
 # [1.3.0](https://github.com/temich/svas/compare/v1.2.1...v1.3.0) (2026-01-10)
 
 
