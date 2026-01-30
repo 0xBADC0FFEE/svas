@@ -1,5 +1,5 @@
 <script lang="ts" generics="T">
-  import { LoaderCircle } from "@lucide/svelte";
+  import { LoaderCircle, RotateCcw } from "@lucide/svelte";
   import type { Props } from "./Async";
 
   const {
@@ -22,7 +22,14 @@
   {#if error}
     {@render error($store)}
   {:else if !silent}
-    <span class="text-destructive">Something went terribly wrong</span>
+    <div class="m-auto flex flex-col items-center gap-4">
+      <span class="text-destructive">Something went terribly wrong</span>
+      <button
+      class="p-4 border border-muted-foreground hover:bg-muted cursor-pointer rounded-md flex items-center gap-2"
+      onclick={() => window.location.reload()}>
+        <RotateCcw size={16} />
+      </button>
+    </div>
   {/if}
 {:else}
   {@render awaited($store)}
