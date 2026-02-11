@@ -8,7 +8,6 @@
     awaited,
     error,
     silent = false,
-    class: classes,
   }: Props<T> = $props();
 </script>
 

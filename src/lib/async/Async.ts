@@ -7,7 +7,6 @@ export interface Props<T> {
   awaited: Snippet<[T]>
   error?: Snippet<[Error]>
   silent?: boolean
-  class?: string
 }
 
 export { default as Async } from './Async.svelte'
