@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/temich/svas/compare/v1.4.0...v1.5.0) (2026-02-11)
+
+
+### Features
+
+* remove `class` prop ([ba6b17b](https://github.com/temich/svas/commit/ba6b17bbfb365b3ca7e691a68a680ae67f68952b))
+
 # [1.4.0](https://github.com/temich/svas/compare/v1.3.0...v1.4.0) (2026-01-30)
 
 
