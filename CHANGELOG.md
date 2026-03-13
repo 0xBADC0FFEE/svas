@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/temich/svas/compare/v1.5.0...v1.5.1) (2026-03-13)
+
+
+### Bug Fixes
+
+* **collection:** set values on set ([7f32cdd](https://github.com/temich/svas/commit/7f32cdd5f844852973e3b86162442e103dcdc0cb))
+
 # [1.5.0](https://github.com/temich/svas/compare/v1.4.0...v1.5.0) (2026-02-11)
 
 
