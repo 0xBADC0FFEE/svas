@@ -80,6 +80,8 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
 
       return items
     })
+
+    this.values?.set(item.id, item)
   }
 
   public update(id: string, update: (item: T) => T | void, options?: SetOptions): void {
