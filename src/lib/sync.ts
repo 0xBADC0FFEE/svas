@@ -1,6 +1,18 @@
-import type { Collection, Identifiable, SetOptions } from './collection'
+import { Collection, type Identifiable, type SetOptions } from './collection'
+import { Value } from './value'
 
 export function sync<T extends Comparable>(
+  store: Collection<T> | Value<T>,
+  tobe: T,
+  options?: Options
+) {
+  if (store instanceof Collection)
+    syncCollection(store, tobe, options)
+  else if (store instanceof Value)
+    syncValue(store, tobe)
+}
+
+function syncCollection<T extends Comparable>(
   collection: Collection<T>,
   tobe: T,
   options?: Options
@@ -15,7 +27,16 @@ export function sync<T extends Comparable>(
 
   if (asis === null) collection.add(tobe)
   else if (asis._version < tobe._version) collection.set(tobe, { add: true, ...options })
-  else console.debug('Sync skipped', tobe)
+}
+
+function syncValue<T extends Comparable>(
+  value: Value<T>,
+  tobe: T,
+) {
+  const asis = value.extract()
+
+  if (asis === null) value.set(tobe)
+  else if (asis._version < tobe._version) value.set(tobe)
 }
 
 interface Comparable extends Identifiable {
