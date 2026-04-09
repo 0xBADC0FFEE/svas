@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/temich/svas/compare/v1.6.0...v1.7.0) (2026-04-09)
+
+
+### Features
+
+* **sync:** add `delete` option ([850157a](https://github.com/temich/svas/commit/850157afdac94feb8a150b11fa596870bf5356c7))
+
 # [1.6.0](https://github.com/temich/svas/compare/v1.5.1...v1.6.0) (2026-03-23)
 
 
