@@ -17,7 +17,7 @@ function syncCollection<T extends Comparable>(
   tobe: T,
   options?: Options
 ) {
-  if (tobe._deleted !== null && tobe._deleted !== undefined) {
+  if (tobe._deleted !== null && tobe._deleted !== undefined && options?.delete !== false) {
     collection.delete(tobe.id)
 
     return
@@ -44,4 +44,7 @@ interface Comparable extends Identifiable {
   _deleted?: number | null
 }
 
-type Options = SetOptions
+interface Options extends SetOptions {
+  /** Whether to delete the item `_deleted` is set. Defaults to `true`. */
+  delete?: boolean
+}
