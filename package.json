@@ -30,7 +30,7 @@
 	"peerDependencies": {
 		"@lucide/svelte": "*",
 		"@sveltejs/kit": "*",
-		"svelte": "^5.0.0"
+		"svelte": "*"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.0",
@@ -42,18 +42,18 @@
 		"@semantic-release/npm": "^13.1.2",
 		"@semantic-release/release-notes-generator": "^14.1.0",
 		"@sveltejs/adapter-auto": "^7.0.0",
-		"@sveltejs/kit": "^2.49.2",
+		"@sveltejs/kit": "^2.57.1",
 		"@sveltejs/package": "^2.5.7",
-		"@sveltejs/vite-plugin-svelte": "^6.2.1",
-		"eslint": "^9.39.1",
+		"@sveltejs/vite-plugin-svelte": "^6.2.4",
+		"eslint": "^9.39.4",
 		"eslint-plugin-svelte": "^3.13.1",
 		"globals": "^17.2.0",
 		"publint": "^0.3.15",
-		"svelte": "^5.45.8",
+		"svelte": "^5.55.3",
 		"svelte-check": "^4.3.4",
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.49.0",
-		"vite": "^7.2.7"
+		"vite": "^7.3.2"
 	},
 	"keywords": [
 		"svelte"
