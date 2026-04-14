@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/temich/svas/compare/v1.7.0...v1.7.1) (2026-04-14)
+
+
+### Bug Fixes
+
+* **collection:** prevent concurrent intitial requests ([b8524cb](https://github.com/temich/svas/commit/b8524cb3a3f3c68c5c53d787137c06440d852465))
+
 # [1.7.0](https://github.com/temich/svas/compare/v1.6.0...v1.7.0) (2026-04-09)
 
 
