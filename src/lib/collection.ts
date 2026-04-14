@@ -131,12 +131,11 @@ export class Collection<T extends Identifiable, E extends Error = Error> impleme
   private async refresh() {
     if (this.request === undefined) return
 
+    this.timestamp = Date.now()
     const items = await this.request()
 
     if (!(items instanceof Error)) this.replace(items)
     else this.store.set(items)
-
-    this.timestamp = Date.now()
   }
 
   private persist(key: string) {
