@@ -1,12 +1,13 @@
 ---
 name: svas
 description: >
-  Async-first Svelte stores (svas): fetching, caching, revalidation, persistence via `Maybe<T> = null | T | Error`. Use when code imports from `svas` or for async data in Svelte — loading/error UI, `value`/`values`/`collection`, `<Async>`, caching a fetch, or keeping data in sync.
+  Async Svelte stores (svas): fetching, caching, revalidation, persistence.
+  Use when UI presents data from the API.
 ---
 
 # svas — Svelte Async Stores
 
-Stores that fetch lazily, cache, revalidate, and persist. Every store emits one type:
+Stores that fetch lazily, cache, revalidate, and persist. Every store emits one of three types:
 
 ```ts
 type Maybe<T, E extends Error = Error> = null | T | E
@@ -32,24 +33,29 @@ Every store fetches on **first subscribe**, then auto-revalidates. Common option
 |--------|---------|
 | `get` | fetcher returning `Promise<T \| Error>` |
 | `revalidate` | ms before re-fetch (default `300_000`; `Infinity` disables) |
-| `persist` | mirror into storage under this key |
+| `persist` | mirror into local storage under this key |
 | `session` | use `sessionStorage` instead of `localStorage` |
 | `stale` | keep previous value visible while revalidating (default `false`) |
-| `bind` | `Readable<unknown \| null>` — reset/clear store when bound store is `null` (tie data to a session/user) |
+| `bind` | `Readable<unknown \| null>` — reset/clear store when bound store is `null` (tie data to a user) |
 | `default` | initial value when nothing is persisted |
 
 ## Stores
+
+All stores implements Readable interface from svelte/store.
+
+Use `persist` whenever it makes sense to persist the data, it will vastly speed up the initial load.
+If store contains user-bound data, use `bind` to reset the store when the user is logged out.
 
 ### `value<T>` — one async value
 
 `Writable<T | null>`. For single fetched values, auth tokens, transient UI flags.
 
 ```ts
-const me = value<User>({ get: () => api.me(), persist: 'user', bind: session })
+const me = value<User>({ get: () => api.me(), persist: 'user' })
 const seen = value<number>({ persist: 'seen', default: 0 }) // transient/local-only
 ```
 
-Methods: `subscribe` · `set(v)` · `update(fn)` · `extract(): T | null` (sync read) · `sync()` (revalidate if stale).
+Methods: `set(v)`, `update(fn)`, `extract(): T | null` (sync read), `sync()` (revalidate if stale).
 
 ### `values<T>` — keyed cache
 
@@ -72,11 +78,12 @@ Extra options: `permanent` (don't revalidate persisted entries on startup). `sta
 `Readable<Maybe<T[]>>`. Items must have `{ id: string }`. Pass a `values` store to also observe items individually via `get(id)`.
 
 ```ts
-const items = values<Todo>()                      // side store, no options
 const todos = collection<Todo>({
   get: () => api.todos(),
-  values: items,                                  // enables todos.get(id) / extract(id)
-  stale: true, persist: 'todos', bind: session
+  values: values<Todo>(), // enables todos.get(id) / extract(id)
+  stale: true, 
+  persist: 'todos', 
+  bind: session
 })
 ```
 
@@ -90,7 +97,7 @@ Never use `?.` on a `Maybe<T>` — an `Error` has no domain properties. Narrow f
 
 ```ts
 ok($store)          // boolean type guard: narrows Maybe<T> → T (excludes null | Error)
-ensure(store)       // sync read, THROWS if null/Error — use when value must exist now (e.g. auth)
+ensure(store)       // sync read, THROWS if null/Error — use when value must exist now (e.g. unsafe net requests in response to user action)
 store.extract(key?) // sync read, T | null (ignores errors) — never throws
 ```
 
@@ -109,35 +116,46 @@ await once(store, (v) => v === 'ready')   // first value satisfying a condition
 
 ## Compose & render
 
-### `combined(...stores)`
-
-One `Maybe` from many: tuple when **all** resolve, first `Error`, else `null`. Spreadable.
-
-```ts
-const both = combined(user, settings)        // Maybe<[User, Settings]>
-combined(list, account, ...extras)           // spread supported
-```
-
-### `sync(store, item, { delete? })`
-
-Merge a versioned item into a `collection` or `value`, respecting `_version`; removes on `_deleted` (unless `delete: false`). For applying server/realtime events.
-
-```ts
-interface Comparable { id: string; _version: number; _deleted?: number | null }
-sync(todos, incoming)                  // insert/update if newer, delete if tombstoned
-```
-
 ### `<Async>` — render a `Maybe`
 
 ```svelte
 <Async store={todos}>
-  {#snippet awaited(todos)}{#each todos as t}<Row {t} />{/each}{/snippet}
+  {#snippet awaited(todos)}
+    <!-- here todos are T[] -->
+    {#each todos as t}<Row {t} />{/each}
+  {/snippet}
   {#snippet waiting()}<Spinner />{/snippet}   <!-- optional; default loader otherwise -->
   {#snippet error(e)}<Err {e} />{/snippet}    <!-- optional; default error UI otherwise -->
 </Async>
 ```
 
 Props: `store` (required), `awaited` snippet (required), optional `waiting` / `error` snippets, `silent` (suppress default loader/error chrome). Combine with `combined` to await several at once.
+
+### `combined(...stores)`
+
+One `Maybe` from many: tuple when **all** resolve, first `Error`, else `null`. Spreadable.
+
+```svelte
+<Async store={combined(account, todos)}>
+  {#snippet awaited([account, todos])}
+    <!-- here account is U and todos is T[] -->
+    <Profile {account} />
+    {#each todos as t}<Row {t} />{/each}
+  {/snippet}
+</Async>
+```
+
+### `sync(store, item, { delete? })`
+
+Conflict-free update.
+
+T must implement interface Comparable { id: string; _version: number;_deleted?: number | null }
+
+Merge a versioned item into a `collection` or `value`, respecting `_version`; removes on `_deleted` (unless `delete: false`). For applying server/realtime events.
+
+```ts
+events.on('todos.sync', (todo) => sync(todos, todo))
+```
 
 ## Rules
 

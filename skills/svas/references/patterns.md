@@ -7,7 +7,9 @@ Idioms for non-trivial usage. All build on `Maybe<T> = null | T | Error` and the
 Compute one async store from others with `svelte/store`'s `derived`. Forward `null`/`Error` early, and return a cleanup function when you subscribe to linked entities.
 
 ```ts
-export const enriched = derived<[typeof list, typeof me], Maybe<Item[]>>(
+const internal = collection<Item>({ get: () => api.get(), persist: 'items' })
+
+export const items = derived<[typeof internal, typeof me], Maybe<Item[]>>(
   [list, me],
   ([$list, $me], set, update) => {
     if (!ok($list)) return set($list)   // forward loading/error verbatim
@@ -37,6 +39,8 @@ export const enriched = derived<[typeof list, typeof me], Maybe<Item[]>>(
 Key moves: `if (!ok(x)) return set(x)` to forward non-resolved states, `update()` for incremental edits, return a teardown for any subscriptions you open.
 
 ## Realtime event wiring
+
+> Usually used with antcn/@realtime
 
 Apply server events into stores with `sync` (collections/values-backed) or `.set` (standalone `values`). Mutating functions sync their own result so the optimistic and authoritative paths converge.
 
@@ -77,13 +81,15 @@ Hold a `Maybe<T>` per link; never reach through it with `?.` — guard with `ok(
 `values.set(key, v, { stash: true })` remembers the prior persisted value; `reset(key)` restores it if the request fails.
 
 ```ts
-products.set(id, optimistic, { stash: true })
-const res = await net.save(optimistic)
-if (res instanceof Error) products.reset(id)   // roll back
-else products.set(id, res)
+products.update(id, (product) => ({ ...product, ...properties }))
+
+const res = await net.patch(id, properties)
+
+if (res instanceof Error) return res
+else sync(products, res)
 ```
 
 ## `ensure` vs `having`
 
-- `ensure(store)` — **sync**, throws if `null`/`Error`. Use when the value must already exist (auth checks inside service functions).
-- `having(store)` — **async**, waits for a resolved value, rejects on `Error`. Use at init time when the value may still be loading.
+- `ensure(store)` — **sync**, throws if `null`/`Error`. Use when the value must already exist (auth checks inside service functions called in response to user action).
+- `await having(store)` — **async**, waits for a resolved value, rejects on `Error`. Use at init time when the value may still be loading (initial data fetching when app is starting).
